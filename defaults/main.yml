@@ -1,0 +1,9 @@
+---
+# defaults file for inverso.python-pip
+
+python_pip__package     : 'python-pip'
+python_pip__config_file : '/etc/pip.conf'
+python_pip__state       : 'present'
+python_pip__trusted_cert: ''
+
+python_pip__modules     : []

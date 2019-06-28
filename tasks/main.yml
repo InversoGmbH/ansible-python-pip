@@ -1,0 +1,30 @@
+# tasks file for inverso.python-pip
+
+- name: check required variables
+  assert:
+    that:
+      - python_pip__package     | mandatory
+      - python_pip__config_file | mandatory
+      - python_pip__state       in [ 'present', 'absent', 'latest' ]
+      - python_pip__modules     is iterable
+  tags: ['varcheck']
+
+- name: ensure python-pip is '{{ python_pip__state }}'
+  package:
+    name: '{{ python_pip__package }}'
+    state: "{{ python_pip__state | default('present') }}"
+
+- name: ensure python-pip trusts root certificate
+  copy: 
+    dest: '{{ python_pip__config_file }}'
+    content: |
+      [global]
+      cert = {{ python_pip__trusted_cert }}
+  when: python_pip__state in ['present','latest'] and python_pip__trusted_cert
+
+- name: ensure python-pip modules are '{{ python_pip__state }}'
+  pip:
+    name: '{{ python_pip__modules }}'
+    state: "{{ python_pip__state | default('present')}}"
+    extra_args: --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host  files.pythonhosted.org
+  when: python_pip__modules | length > 0

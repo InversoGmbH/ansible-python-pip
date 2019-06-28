@@ -7,3 +7,5 @@ python_pip__state       : 'present'
 python_pip__trusted_cert: ''
 
 python_pip__modules     : []
+
+python_pip__args        : '' # --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host  files.pythonhosted.org

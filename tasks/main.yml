@@ -26,5 +26,5 @@
   pip:
     name: '{{ python_pip__modules }}'
     state: "{{ python_pip__state | default('present')}}"
-    extra_args: --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host  files.pythonhosted.org
+    extra_args: '{{ python_pip__args | default(omit) }}'
   when: python_pip__modules | length > 0

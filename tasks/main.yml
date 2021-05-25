@@ -9,6 +9,21 @@
       - python_pip__modules     is iterable
   tags: ['varcheck']
 
+- name: configure python for os
+  set_fact:
+    python_pip__package: 'python3-pip'
+    python_pip__executable: '/usr/bin/pip3'
+  when:
+    - ansible_os_family | lower == 'redhat'
+    - ansible_distribution_major_version == '8'
+
+- name: set python_pip__package
+  set_fact:
+    python_pip__package: 'python3-pip'
+  when:
+    - ansible_python_interpreter is defined
+    - '"3" in ansible_python_interpreter'
+
 - name: ensure python-pip is '{{ python_pip__state }}'
   package:
     name: '{{ python_pip__package }}'
@@ -27,4 +42,5 @@
     name: '{{ python_pip__modules }}'
     state: "{{ python_pip__state | default('present')}}"
     extra_args: '{{ python_pip__args | default(omit) }}'
+    executable: '{{ python_pip__executable | default(omit) }}'
   when: python_pip__modules | length > 0

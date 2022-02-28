@@ -9,25 +9,30 @@
       - python_pip__modules     is iterable
   tags: ['varcheck']
 
-- name: configure python for os
-  set_fact:
-    python_pip__package: 'python3-pip'
-    python_pip__executable: '/usr/bin/pip3'
-  when:
-    - ansible_os_family | lower == 'redhat'
-    - ansible_distribution_major_version == '8'
+#- name: configure python for os
+#  set_fact:
+#    python_pip__package: 'python3-pip'
+#    python_pip__executable: '/usr/bin/pip3'
+#  when:
+#    - ansible_os_family | lower == 'redhat'
+#    - ansible_distribution_major_version == '8'
 
-- name: set python_pip__package
-  set_fact:
-    python_pip__package: 'python3-pip'
-  when:
-    - ansible_python_interpreter is defined
-    - '"3" in ansible_python_interpreter'
+#- name: set python_pip__package
+#  set_fact:
+#    python_pip__package: 'python3-pip'
+#  when:
+#    - ansible_python_interpreter is defined
+#    - '"3" in ansible_python_interpreter'
 
-- name: ensure python-pip is '{{ python_pip__state }}'
-  package:
-    name: '{{ python_pip__package }}'
-    state: "{{ python_pip__state | default('present') }}"
+- name: python-pip base configuration
+  include_role:
+    name: 'geerlingguy.pip'
+  vars:
+    pip_package: "{{ python_pip__package }}"
+    pip_install_packages: '{{ python_pip__modules }}'
+    #pip_executable: '{{ python_pip__executable }}'
+  when:
+    - python_pip__state in ['present','latest']
 
 - name: ensure python-pip trusts root certificate
   copy: 
@@ -35,12 +40,6 @@
     content: |
       [global]
       cert = {{ python_pip__trusted_cert }}
-  when: python_pip__state in ['present','latest'] and python_pip__trusted_cert
-
-- name: ensure python-pip modules are '{{ python_pip__state }}'
-  pip:
-    name: '{{ python_pip__modules }}'
-    state: "{{ python_pip__state | default('present')}}"
-    extra_args: '{{ python_pip__args | default(omit) }}'
-    executable: '{{ python_pip__executable | default(omit) }}'
-  when: python_pip__modules | length > 0
+  when:
+    - python_pip__state in ['present','latest']
+    - python_pip__trusted_cert != ''

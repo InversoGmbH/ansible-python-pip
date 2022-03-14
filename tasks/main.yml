@@ -3,28 +3,27 @@
 - name: check required variables
   assert:
     that:
-      - python_pip__package     | mandatory
-      - python_pip__config_file | mandatory
-      - python_pip__state       in [ 'present', 'absent', 'latest' ]
-      - python_pip__modules     is iterable
+      - pip_config_file      | mandatory
+      - pip_state            in [ 'present', 'absent', 'latest' ]
+      - pip_install_packages is iterable
   tags: ['varcheck']
 
 - name: python-pip base configuration
   include_role:
     name: 'geerlingguy.pip'
-  vars:
-    pip_package: "{{ python_pip__package }}"
-    pip_install_packages: '{{ python_pip__modules }}'
-    #pip_executable: '{{ python_pip__executable }}'
   when:
-    - python_pip__state in ['present','latest']
+    - pip_state in ['present','latest']
 
 - name: ensure python-pip trusts root certificate
   copy: 
-    dest: '{{ python_pip__config_file }}'
+    dest: '{{ pip_config_file }}'
     content: |
       [global]
-      cert = {{ python_pip__trusted_cert }}
+      cert = {{ pip_trusted_cert | default(_pip_trusted_cert[ansible_os_family | lower]) }}
+  vars:
+    _pip_trusted_cert:
+      debian: '/etc/ssl/certs/ca-certificates.crt'
+      redhat: '/etc/pki/tls/certs/ca-bundle.crt'
   when:
-    - python_pip__state in ['present','latest']
-    - python_pip__trusted_cert != ''
+    - pip_state in ['present','latest']
+    - pip_trusted_cert != ''

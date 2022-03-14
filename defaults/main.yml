@@ -4,6 +4,7 @@
 pip_config_file : '/etc/pip.conf'
 
 pip_state       : 'present'
-pip_trusted_cert: ''
+
+pip_trusted_cert: ~
 
 pip_install_packages    : []

@@ -19,11 +19,12 @@
     dest: '{{ pip_config_file }}'
     content: |
       [global]
-      cert = {{ pip_trusted_cert | default(_pip_trusted_cert[ansible_os_family | lower]) }}
+      cert = {{ _pip_trusted_cert }}
   vars:
-    _pip_trusted_cert:
+    _pip_trusted_cert_available:
       debian: '/etc/ssl/certs/ca-certificates.crt'
       redhat: '/etc/pki/tls/certs/ca-bundle.crt'
+    _pip_trusted_cert: "{{ pip_trusted_cert | ternary( pip_trusted_cert, _pip_trusted_cert_available[ansible_os_family | lower ]) }}"
   when:
     - pip_state in ['present','latest']
     - pip_trusted_cert != ''

@@ -8,12 +8,6 @@
       - pip_install_packages is iterable
   tags: ['varcheck']
 
-- name: python-pip base configuration
-  include_role:
-    name: 'geerlingguy.pip'
-  when:
-    - pip_state in ['present','latest']
-
 - name: ensure python-pip trusts root certificate
   copy: 
     dest: '{{ pip_config_file }}'
@@ -28,3 +22,9 @@
   when:
     - pip_state in ['present','latest']
     - pip_trusted_cert != ''
+
+- name: python-pip base configuration
+  include_role:
+    name: 'geerlingguy.pip'
+  when:
+    - pip_state in ['present','latest']
